@@ -19,26 +19,6 @@ const tokenGenerate = (userId) => {
   );
 }
 
-const statusCheck = (req, res, next) => {
-  User.findOne({ username: req.body.username }, (err, user) => {
-    if (err) return res.status(500).send({
-      message: 'Error on status check'
-    });
-    if (!user) return res.status(403).send({
-      message: 'Username not found on status check'
-    });
-    if (user && user.active) {
-      req.userId = user._id
-      next();
-    } else {
-      return res.status(401).send({
-        auth: false,
-        message: "Account hasn't been activated! Please wait for an Administrator to authorize your login."
-      });
-    }
-  });
-};
-
 const tokenVerify = (req, res, next) => {
   let token = req.headers['kassa_token'];
   if (!token) {
@@ -72,7 +52,7 @@ const tokenVerify = (req, res, next) => {
   });
 }
 
-const roleVerify = (req, res, next) => {
+const roleCheck = (req, res, next) => {
   let token = req.headers['kassa_token'];
   if (!token) return res.status(403).send({
     message: "No access token provided"
@@ -110,9 +90,31 @@ const roleVerify = (req, res, next) => {
   });
 }
 
+const statusCheck = (req, res, next) => {
+  User.findOne({ username: req.body.username }, (err, user) => {
+    if (err) return res.status(500).send({
+      message: 'Error on status check'
+    });
+    if (!user) return res.status(403).send({
+      message: 'Username not found on status check'
+    });
+    if (user && user.active) {
+      req.userId = user._id
+      next();
+    } else {
+      return res.status(401).send({
+        auth: false,
+        message: "Account hasn't been activated! Please wait for an Administrator to authorize your login."
+      });
+    }
+  });
+};
+
 module.exports = {
   passwordHash,
   passwordValidity,
   tokenVerify,
-  tokenGenerate
+  tokenGenerate,
+  roleCheck,
+  statusCheck,
 }
