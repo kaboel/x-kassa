@@ -1,0 +1,10 @@
+{
+  "name": "x-kassa",
+  "version": "1.0.0",
+  "description": "Kassa ePOS system server-side",
+  "main": "app.js",
+  "repository": "https://github.com/kaboel/x-kassa.git",
+  "author": "Faiq <faiq.kaboel@gmail.com>",
+  "license": "GNU",
+  "private": false
+}
