@@ -41,7 +41,7 @@ const tokenVerify = (req, res, next) => {
           message: "Token Error! User not found."
         });
       }
-      req.userId = decoded.id;
+      req.userId = user._id;
       next();
     }).catch(err => {
       return res.status(500).send({
@@ -71,8 +71,8 @@ const roleCheck = (req, res, next) => {
           message: "Token Error! User not found."
         });
       }
-      if (decoded.role !== 'user') {
-        req.userId = decoded.id;
+      if (user.role !== 'user') {
+        req.userId = user._id;
         req.roleAuth = true;
         next();
       } else {

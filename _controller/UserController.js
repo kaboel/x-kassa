@@ -89,8 +89,11 @@ const setUserStatus = (req, res) => {
       });
       targetUser.active = req.body.newStatus;
       await targetUser.save().then((response) => {
+        let message = "";
+        if (response.active) message = `User ${response.username} activated!`
+        else message = `User ${response.username} deactivated!`
         res.status(200).send({
-          message: `User ${targetUser.username} activated!`
+          message: message
         });
       }).catch((error) => {
         return res.status(500).send({
@@ -125,7 +128,7 @@ const setUserRole = (req, res) => {
           targetUser.role = req.body.newRole;
           await targetUser.save().then((response) => {
             res.status(200).send({
-              message: `User ${targetUser.username} activated!`
+              message: `Role updated for user ${targetUser.username}!`
             });
           }).catch((error) => {
             return res.status(500).send({
