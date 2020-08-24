@@ -3,7 +3,7 @@
 .vscode
 
 # configurations
-src/_core/config.js
+config.js
 *.swp
 
 # dependencies
@@ -14,6 +14,3 @@ Procfile
 
 #error-log
 *error.log
-
-#lock-files
-*lock.json
