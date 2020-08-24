@@ -11,6 +11,10 @@
     "type": "git",
     "url": "git+https://github.com/kaboel/x-kassa.git"
   },
+  "engines": {
+    "node": "12.16.0",
+    "npm": "6.13.4"
+  },
   "keywords": [
     "ePOS",
     "POS",
