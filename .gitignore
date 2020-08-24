@@ -11,3 +11,9 @@ node_modules
 
 # Procfile
 Procfile
+
+#error-log
+*error.log
+
+#lock-files
+*lock.json

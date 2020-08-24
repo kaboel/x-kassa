@@ -5,6 +5,13 @@
   "main": "app.js",
   "repository": "https://github.com/kaboel/x-kassa.git",
   "author": "Faiq <faiq.kaboel@gmail.com>",
-  "license": "GNU",
-  "private": false
+  "license": "GPL-3.0",
+  "private": false,
+  "dependencies": {
+    "cors": "^2.8.5",
+    "eslint": "^7.7.0",
+    "express": "^4.17.1",
+    "morgan": "^1.10.0",
+    "nodemon": "^2.0.4"
+  }
 }
