@@ -75,9 +75,9 @@ const loginUser = (req, res) => {
     });
 };
 
-const setUserStatus = async (req, res) => {
+const setUserStatus = (req, res) => {
   if (req.userId && req.roleAuth) {
-    User.findOne({ _id: req.body.targetId }, (err, targetUser) => {
+    User.findOne({ _id: req.body.targetId }, async (err, targetUser) => {
       if (err) return res.status(500).send({
         message: 'An error has occured while authorizing user.'
       });
@@ -102,7 +102,7 @@ const setUserStatus = async (req, res) => {
   }
 }
 
-const setUserRole = async (req, res) => {
+const setUserRole = (req, res) => {
   if (req.userId && req.roleAuth) {
     User.findOne({ _id: req.userId }, (err, user) => {
       if (err) return res.status(500).send({
@@ -112,7 +112,7 @@ const setUserRole = async (req, res) => {
         message: 'Error! Administrator credential not found.'
       });
       if (user && user.role === 'super') {
-        User.findOne({ _id: req.body.targetId }, (err, targetUser) => {
+        User.findOne({ _id: req.body.targetId }, async (err, targetUser) => {
           if (err) return res.status(500).send({
             message: 'An error has occured while authorizing user.'
           });
