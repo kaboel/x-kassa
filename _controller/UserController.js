@@ -157,3 +157,11 @@ const getAllUser = (req, res) => {
     });
   }
 }
+
+module.exports = {
+  getAllUser,
+  setUserRole,
+  setUserStatus,
+  loginUser,
+  registerNewUser
+}
