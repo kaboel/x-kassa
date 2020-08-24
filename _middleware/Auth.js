@@ -11,33 +11,54 @@ const passwordValidity = (password, hashed) => {
   return bcrypt.compareSync(password, hashed);
 }
 
-const tokenVerify = (uid) => {
+const tokenGenerate = (userId) => {
   return jwt.sign(
-    { id: uid },
+    { id: userId },
     secret,
-    { expiresIn: "1d" })
+    { expiresIn: "1d" }
+  );
 }
 
-const tokenGenerate = (req, res, next) => {
-  let token = req.headers['access_token'];
+const statusCheck = (req, res, next) => {
+  User.findOne({ username: req.body.username }, (err, user) => {
+    if (err) return res.status(500).send({
+      message: 'Error on status check'
+    });
+    if (!user) return res.status(403).send({
+      message: 'Username not found on status check'
+    });
+    if (user && user.active) {
+      req.userId = user._id
+      next();
+    } else {
+      return res.status(401).send({
+        auth: false,
+        message: "Account hasn't been activated! Please wait for an Administrator to authorize your login."
+      });
+    }
+  });
+};
+
+const tokenVerify = (req, res, next) => {
+  let token = req.headers['kassa_token'];
   if (!token) {
     return res.status(403).send({
       auth: false,
-      message: "No access_token provided."
+      message: "No access token provided."
     });
   }
   jwt.verify(token, secret, (err, decoded) => {
     if (err) {
       return res.status(401).send({
         auth: false,
-        message: "Expired access_token provided."
+        message: "Expired access token provided."
       });
     }
     User.findById(decoded.id).then(user => {
       if (!user) {
         return res.status(500).send({
           auth: false,
-          message: "Token Error. User not found."
+          message: "Token Error! User not found."
         });
       }
       req.userId = decoded.id;
@@ -45,7 +66,45 @@ const tokenGenerate = (req, res, next) => {
     }).catch(err => {
       return res.status(500).send({
         auth: false,
-        message: "Token Error. Error fetching user data."
+        message: "Token Error! Error fetching user data."
+      });
+    });
+  });
+}
+
+const roleVerify = (req, res, next) => {
+  let token = req.headers['kassa_token'];
+  if (!token) return res.status(403).send({
+    message: "No access token provided"
+  });
+  jwt.verify(token, secret, (err, decoded) => {
+    if (err) {
+      return res.status(401).send({
+        auth: false,
+        message: "Expired access token provided."
+      });
+    }
+    User.findById(decoded.id).then(user => {
+      if (!user) {
+        return res.status(500).send({
+          auth: false,
+          message: "Token Error! User not found."
+        });
+      }
+      if (decoded.role !== 'user') {
+        req.userId = decoded.id;
+        req.roleAuth = true;
+        next();
+      } else {
+        return res.status(401).send({
+          auth: false,
+          message: "Role unauthorized!"
+        });
+      }
+    }).catch(err => {
+      return res.status(500).send({
+        auth: false,
+        message: "Token Error! Error fetching user data."
       });
     });
   });
