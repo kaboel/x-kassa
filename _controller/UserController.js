@@ -17,7 +17,7 @@ const registerNewUser = async (req, res) => {
     let hash = await passwordHash(req.body.password);
     user = new User({
       name: req.body.name,
-      username: req.body.name,
+      username: req.body.username,
       password: hash,
     });
     await user.save().then((user) => {
@@ -25,6 +25,9 @@ const registerNewUser = async (req, res) => {
         auth: false,
         id: user._id,
         name: user.name,
+        username: user.username,
+        role: user.role,
+        active: user.active,
         message: "Registration successful! Please wait for an Administrator to authorize your login."
       });
     }).catch((err) => {
