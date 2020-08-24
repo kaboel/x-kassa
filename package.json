@@ -1,15 +1,29 @@
 {
   "name": "x-kassa",
   "version": "1.0.0",
-  "description": "Kassa ePOS system server-side",
+  "description": "KASSA ePOS system server side",
   "main": "app.js",
-  "repository": "https://github.com/kaboel/x-kassa.git",
-  "author": "Faiq <faiq.kaboel@gmail.com>",
-  "license": "GPL-3.0",
-  "private": false,
   "scripts": {
-    "start": "./node_modules/.bin/nodemon app.js"
+    "start": "./node_modules/.bin/nodemon app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kaboel/x-kassa.git"
+  },
+  "keywords": [
+    "ePOS",
+    "POS",
+    "KASSA",
+    "Node",
+    "Express"
+  ],
+  "author": "kaboel <faiq.kaboel@gmail.com>",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/kaboel/x-kassa/issues"
+  },
+  "homepage": "https://github.com/kaboel/x-kassa#readme",
   "dependencies": {
     "bcrypt": "^5.0.0",
     "body-parser": "^1.19.0",
@@ -19,6 +33,5 @@
     "mongoose": "^5.10.0",
     "morgan": "^1.10.0",
     "nodemon": "^2.0.4"
-  },
-  "devDependencies": {}
+  }
 }
