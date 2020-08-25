@@ -8,12 +8,10 @@ const {
 const registerNewUser = async (req, res) => {
   try {
     let user = User.find({ username: req.body.username });
-    if (user.length >= 1) {
-      return res.status(409).send({
-        auth: false,
-        message: 'Username already in use.'
-      });
-    }
+    if (user.length >= 1) return res.status(409).send({
+      auth: false,
+      message: 'Username already in use.'
+    });
     let hash = await passwordHash(req.body.password);
     user = new User({
       name: req.body.name,
@@ -37,7 +35,7 @@ const registerNewUser = async (req, res) => {
       })
     })
   } catch (e) {
-    return res.status(400).send({
+    return res.status(500).send({
       auth: false,
       message: "Request error."
     })
@@ -65,25 +63,19 @@ const removeUser = (req, res) => {
 const loginUser = (req, res) => {
   User.findOne({ username: req.body.username },
     (err, user) => {
-      if (err) {
-        return res.status(500).send({
-          auth: false,
-          message: "Error while logging in."
-        });
-      }
-      if (!user) {
-        return res.status(403).send({
-          auth: false,
-          message: "Username not found."
-        });
-      }
-      if (!passwordValidity(req.body.password, user.password)) {
-        return res.status(401).send({
-          auth: false,
-          kassa_token: null,
-          message: "Password incorrect."
-        });
-      }
+      if (err) return res.status(500).send({
+        auth: false,
+        message: "Error while logging in."
+      });
+      if (!user) return res.status(403).send({
+        auth: false,
+        message: "Username not found."
+      });
+      if (!passwordValidity(req.body.password, user.password)) return res.status(401).send({
+        auth: false,
+        kassa_token: null,
+        message: "Password incorrect."
+      });
       res.status(200).send({
         auth: true,
         id: user._id,
@@ -91,7 +83,7 @@ const loginUser = (req, res) => {
         role: user.role,
         active: user.active,
         username: user.username,
-        kassa_token: tokenGenerate(user._id)
+        kassa_token: tokenGenerate(user._id),
       });
     });
 };
@@ -149,6 +141,28 @@ const setUserRole = (req, res) => {
   } else {
     return res.status(401).send({
       message: 'Role unauthorized!'
+    });
+  }
+}
+
+const getActiveUser = (req, res) => {
+  if (req.userId) {
+    User.findOne({_id: req.userId}).then((user) => {
+      res.status(200).send({
+        _id: user._id,
+        name: user.name,
+        username: user.username,
+        active: user.active,
+        role: user.role,
+      });
+    }).catch((err) => {
+      return res.status(500).send({
+        message: 'An error has occured while fectching user data.'
+      });
+    });
+  } else {
+    return res.status(401).send({
+      message: 'Expired access token provided. Please re-login!'
     });
   }
 }
