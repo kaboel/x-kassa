@@ -44,6 +44,18 @@ const registerNewUser = async (req, res) => {
   }
 }
 
+const removeUser = (req, res) => {
+  User.findOneAndDelete({_id: req.body._id}).then(() => {
+    res.status(200).send({
+      message: 'User deleted!'
+    })
+  }).catch(err => {
+    return res.status(500).send({
+      message: 'An error has occured while deleting the user.'
+    })
+  })
+}
+
 const loginUser = (req, res) => {
   User.findOne({ username: req.body.username },
     (err, user) => {
@@ -169,5 +181,6 @@ module.exports = {
   setUserRole,
   setUserStatus,
   loginUser,
+  removeUser,
   registerNewUser
 }
