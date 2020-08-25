@@ -45,15 +45,21 @@ const registerNewUser = async (req, res) => {
 }
 
 const removeUser = (req, res) => {
-  User.findOneAndDelete({_id: req.body._id}).then(() => {
-    res.status(200).send({
-      message: 'User deleted!'
-    })
-  }).catch(err => {
-    return res.status(500).send({
-      message: 'An error has occured while deleting the user.'
-    })
-  })
+  if (req.userId && req.roleAuth === 'super') {
+    User.findOneAndDelete({_id: req.body._id}).then(() => {
+      res.status(200).send({
+        message: 'User deleted!'
+      });
+    }).catch(err => {
+      return res.status(500).send({
+        message: 'An error has occured while deleting the user.'
+      });
+    });
+  } else {
+    return res.status(401).send({
+      message: 'Role unauthorized!'
+    });
+  }
 }
 
 const loginUser = (req, res) => {
@@ -121,39 +127,25 @@ const setUserStatus = (req, res) => {
 }
 
 const setUserRole = (req, res) => {
-  if (req.userId && req.roleAuth) {
-    User.findOne({ _id: req.userId }, (err, user) => {
+  if (req.userId && req.roleAuth === 'super') {
+    User.findOne({ _id: req.body.targetId }, async (err, targetUser) => {
       if (err) return res.status(500).send({
-        message: 'An error has occured.'
+        message: 'An error has occured while authorizing user.'
       });
-      if (!user) return res.status(403).send({
-        message: 'Error! Administrator credential not found.'
+      if (!targetUser) return res.status(403).send({
+        message: 'Error! Target user not found.'
       });
-      if (user && user.role === 'super') {
-        User.findOne({ _id: req.body.targetId }, async (err, targetUser) => {
-          if (err) return res.status(500).send({
-            message: 'An error has occured while authorizing user.'
-          });
-          if (!targetUser) return res.status(403).send({
-            message: 'Error! Target user not found.'
-          });
-          targetUser.role = req.body.newRole;
-          await targetUser.save().then((response) => {
-            res.status(200).send({
-              message: `Role updated for user ${targetUser.username}!`
-            });
-          }).catch((error) => {
-            return res.status(500).send({
-              message: 'An error has occured while authorizing user.'
-            });
-          });
+      targetUser.role = req.body.newRole;
+      await targetUser.save().then((response) => {
+        res.status(200).send({
+          message: `Role updated for user ${targetUser.username}!`
         });
-      } else {
-        return res.status(401).send({
-          message: 'Role unauthorized!'
+      }).catch((error) => {
+        return res.status(500).send({
+          message: 'An error has occured while authorizing user.'
         });
-      }
-    })
+      });
+    });
   } else {
     return res.status(401).send({
       message: 'Role unauthorized!'
