@@ -8,6 +8,7 @@ const {
   registerNewUser,
   removeUser,
   loginUser,
+  getActiveUser,
   getAllUser,
   setUserRole,
   setUserStatus,
@@ -18,6 +19,7 @@ router.delete('/remove', roleCheck, removeUser);
 router.post('/login', statusCheck, loginUser);
 router.put('/set/status', roleCheck, setUserStatus);
 router.put('/set/role', roleCheck, setUserRole);
+router.get('/current', tokenVerify, getActiveUser);
 router.get('/all', roleCheck, getAllUser);
 
 module.exports = router;

@@ -184,6 +184,7 @@ const getAllUser = (req, res) => {
 
 module.exports = {
   getAllUser,
+  getActiveUser,
   setUserRole,
   setUserStatus,
   loginUser,
