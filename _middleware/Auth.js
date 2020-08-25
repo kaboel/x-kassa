@@ -73,7 +73,7 @@ const roleCheck = (req, res, next) => {
       }
       if (user.role !== 'user') {
         req.userId = user._id;
-        req.roleAuth = true;
+        req.roleAuth = user.role;
         next();
       } else {
         return res.status(401).send({
