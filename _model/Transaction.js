@@ -5,13 +5,21 @@ const TransactionSchema = mongoose.Schema({
     type: Date,
     default: Date.now(),
   },
-  total: {
-    type: Number,
-    required: true
+  cashier: {
+    type: mongoose.Types.ObjectId,
+    required: true,
   },
   orders: {
     type: [Object],
     required: true
+  },
+  total: {
+    type: Number,
+    required: true
+  },
+  paymentMethod: {
+    type: String,
+    required: true,
   }
 });
 
