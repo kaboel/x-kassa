@@ -6,56 +6,40 @@ const {
 } = require('../_middleware/Auth');
 
 const registerNewUser = async (req, res) => {
-  try {
-    let user = User.find({ username: req.body.username });
-    if (user.length >= 1) return res.status(409).send({
-      auth: false,
-      message: 'Username already in use.'
-    });
-    let hash = await passwordHash(req.body.password);
-    user = new User({
-      name: req.body.name,
-      username: req.body.username,
-      password: hash,
-    });
-    await user.save().then((user) => {
-      res.status(200).send({
-        auth: false,
-        id: user._id,
-        name: user.name,
-        username: user.username,
-        role: user.role,
-        active: user.active,
-        message: "Registration successful! Please wait for an Administrator to authorize your login."
-      });
-    }).catch((err) => {
-      return res.status(500).send({
-        auth: false,
-        message: "There was a problem registering the user."
-      })
-    })
-  } catch (e) {
+  let user = User.find({ username: req.body.username });
+  if (user.length >= 1) return res.status(409).send({
+    auth: false,
+    message: 'Username already in use.'
+  });
+  let hash = await passwordHash(req.body.password);
+  user = new User({
+    name: req.body.name,
+    username: req.body.username,
+    password: hash,
+  });
+  await user.save().then((user) => {
+    res.sendStatus(200);
+  }).catch((err) => {
     return res.status(500).send({
       auth: false,
-      message: "Request error."
+      error: "There was a problem registering the user."
     })
-  }
+  })
+
 }
 
 const removeUser = (req, res) => {
   if (req.userId && req.roleAuth === 'super') {
     User.findOneAndDelete({_id: req.body._id}).then(() => {
-      res.status(200).send({
-        message: 'User deleted!'
-      });
+      res.sendStatus(200);
     }).catch(err => {
       return res.status(500).send({
-        message: 'An error has occured while deleting the user.'
+        error: 'An error has occured while deleting the user.'
       });
     });
   } else {
     return res.status(401).send({
-      message: 'Role unauthorized!'
+      error: 'Role unauthorized!'
     });
   }
 }
@@ -92,10 +76,10 @@ const setUserStatus = (req, res) => {
   if (req.userId && req.roleAuth) {
     User.findOne({ _id: req.body.targetId }, async (err, targetUser) => {
       if (err) return res.status(500).send({
-        message: 'An error has occured while authorizing user.'
+        error: 'An error has occured while authorizing user.'
       });
       if (!targetUser) return res.status(403).send({
-        message: 'Error! Target user not found.'
+        error: 'Error! Target user not found.'
       });
       targetUser.active = req.body.newStatus;
       await targetUser.save().then((response) => {
@@ -107,13 +91,13 @@ const setUserStatus = (req, res) => {
         });
       }).catch((error) => {
         return res.status(500).send({
-          message: 'An error has occured while authorizing user.'
+          error: 'An error has occured while authorizing user.'
         });
       });
     });
   } else {
     return res.status(401).send({
-      message: 'Role unauthorized!'
+      error: 'Role unauthorized!'
     });
   }
 }
@@ -122,10 +106,10 @@ const setUserRole = (req, res) => {
   if (req.userId && req.roleAuth === 'super') {
     User.findOne({ _id: req.body.targetId }, async (err, targetUser) => {
       if (err) return res.status(500).send({
-        message: 'An error has occured while authorizing user.'
+        error: 'An error has occured while authorizing user.'
       });
       if (!targetUser) return res.status(403).send({
-        message: 'Error! Target user not found.'
+        error: 'Error! Target user not found.'
       });
       targetUser.role = req.body.newRole;
       await targetUser.save().then((response) => {
@@ -134,13 +118,13 @@ const setUserRole = (req, res) => {
         });
       }).catch((error) => {
         return res.status(500).send({
-          message: 'An error has occured while authorizing user.'
+          error: 'An error has occured while authorizing user.'
         });
       });
     });
   } else {
     return res.status(401).send({
-      message: 'Role unauthorized!'
+      error: 'Role unauthorized!'
     });
   }
 }
@@ -157,12 +141,12 @@ const getActiveUser = (req, res) => {
       });
     }).catch((err) => {
       return res.status(500).send({
-        message: 'An error has occured while fectching user data.'
+        error: 'An error has occured while fectching user data.'
       });
     });
   } else {
     return res.status(401).send({
-      message: 'Expired access token provided. Please re-login!'
+      error: 'Expired access token provided. Please re-login!'
     });
   }
 }
@@ -171,13 +155,24 @@ const getAllUser = (req, res) => {
   if (req.userId && req.roleAuth) {
     User.find({}, (err, users) => {
       if (err) return res.status(500).send({
-        message: 'An error has occured while getting users data.'
+        error: 'An error has occured while getting users data.'
       });
-      res.status(200).send(users);
+      let data = users.map(user => {
+        return {
+          _id: user._id,
+          name: user.name,
+          username: user.username,
+          role: user.role,
+          active: user.active,
+        }
+      })
+      res.status(200).send({
+        users: data
+      });
     })
   } else {
     return res.status(401).send({
-      message: 'Role unauthorized!'
+      error: 'Role unauthorized!'
     });
   }
 }

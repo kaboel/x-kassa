@@ -1,16 +1,5 @@
 const mongoose = require('mongoose');
 
-const ItemSchema = mongoose.Schema({
-  itemId: {
-    type: String,
-    required: true,
-  },
-  amount: {
-    type: Number,
-    default: 1
-  }
-});
-
 const TransactionSchema = mongoose.Schema({
   date: {
     type: Date,
@@ -20,7 +9,10 @@ const TransactionSchema = mongoose.Schema({
     type: Number,
     required: true
   },
-  orders: [ItemSchema]
+  orders: {
+    type: [Object],
+    required: true
+  }
 });
 
 const Transaction = mongoose.model('Transaction', TransactionSchema, 'Transactions');

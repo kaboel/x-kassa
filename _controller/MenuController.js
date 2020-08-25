@@ -10,9 +10,7 @@ const upsertMenu = async (req, res) => {
         if (req.body.discount) update.discount = req.body.discount;
         if (req.body.type) update.type = req.body.type;
         Menu.findOneAndUpdate({_id: req.body._id}, update, (err, menu) => {
-          res.status(200).send({
-            message: 'Menu list updated!'
-          });
+          res.sendStatus(200);
         });
       } else {
         let menu = {
@@ -23,19 +21,17 @@ const upsertMenu = async (req, res) => {
         if (req.body.type) newMenu.type = req.body.type;
         let newMenu = new Menu(menu);
         await newMenu.save().then((response) => {
-          res.status(200).send({
-            message: 'Menu list updated!'
-          });
+          res.sendStatus(200);
         });
       }
     } catch (e) {
       return res.status(500).send({
-        message: 'An error has occured while updating menu list.'
+        error: 'An error has occured while updating menu list.'
       });
     }
   } else {
     return res.status(401).send({
-      message: 'Access/Role Unauthorized!'
+      error: 'Access/Role Unauthorized!'
     });
   }
 }
@@ -43,29 +39,36 @@ const upsertMenu = async (req, res) => {
 const deleteMenu = async (req, res) => {
   if (req.userId && req.roleAuth) {
     Menu.findById(req.body._id, (err, menu) => {
-      if (err || !menu) {
-        return res.status(500).send({
-          message: 'An error has occured while deleting item.'
-        });
-      }
+      if (err || !menu) return res.status(500).send({
+        error: 'An error has occured while deleting item.'
+      });
       Menu.deleteOne({ _id: menu._id }).then(() => {
-        res.status(200).send({
-          message: 'An item has been deleted!'
-        });
+        res.sendStatus(200);
       }).catch(err => {
         return res.status(500).send({
-          message: 'An error has occured while deleting item.'
+          error: 'An error has occured while deleting item.'
         });
       });
     });
   } else {
     return res.status(401).send({
-      message: 'Access/Role Unauthorized!'
+      error: 'Access/Role Unauthorized!'
     });
   }
 }
 
+const getAllMenu = (req, res) => {
+  Menu.find({}).then((menu) => {
+    res.status(200).send(menu);
+  }).catch((err) => {
+    return res.status(500).send({
+      error: 'An error has occured while fetching menu data.'
+    });
+  });
+}
+
 module.exports = {
   upsertMenu,
-  deleteMenu
+  deleteMenu,
+  getAllMenu,
 }

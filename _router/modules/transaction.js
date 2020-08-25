@@ -3,11 +3,11 @@ const {
   tokenVerify,
 } = require('../../_middleware/Auth');
 const {
-  omitTransaction,
+  makeTransaction,
   getTransactionDetail,
 } = require('../../_controller/TransactionController');
 
-router.post('/make', tokenVerify, omitTransaction);
+router.post('/make', tokenVerify, makeTransaction);
 router.get('/preview/', tokenVerify, getTransactionDetail);
 
 module.exports = router;

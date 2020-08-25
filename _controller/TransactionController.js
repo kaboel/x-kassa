@@ -2,60 +2,57 @@ const Transaction = require('../_model/Transaction');
 const Menu = require('../_model/Menu');
 const { Types } = require('mongoose');
 
-const getTotalBill = (orders) => {
+const getTotalBill = async (orders) => {
   if (!Array.isArray(orders)) return false;
-  let ids = orders.map(item => {
-    return Types.ObjectId(item.itemId);
-  });
-  let amount = (id) => {
-    let item = orders.find(item => item.itemId === id);
-    return item.amount;
-  }
-  Menu.find({ '_id': { $in: ids }}, (err, items) => {
-    if (err || !items) return false;
-    let total = 0;
-    items.forEach((item, index) => {
-      total += amount(item._id) * item.price;
+  let ids = orders.map(item => item.itemId);
+  let items = await Menu.find({}).where('_id').in(ids).exec();
+  if (!items) return false;
+  let prices = [];
+  items.forEach((item) => {
+    orders.forEach((order) => {
+      if (item._id == order.itemId) {
+        prices.push(item.price * order.amount);
+      }
     });
-    return total;
   });
+  return prices.reduce((a, b) => a + b, 0);
 }
 
-const getOrderItems = (orders) => {
+const getOrderItems = async (orders) => {
   if (!Array.isArray(orders)) return false;
-  let ids = orders.map(item => {
-    return Types.ObjectId(item.itemId);
-  });
-  let amount = (id) => {
-    let item = orders.find(item => item.itemId === id);
-    return item.amount;
-  }
-  Menu.find({'_id': {$in: ids}}, (err, items) => {
-    if (err || !items) return false;
-    items.forEach((item, index) => {
-      item.amount = amount(item._id);
-      item.totalPrice = amount(item._id) * item.price;
+  let ids = orders.map(item => item.itemId);
+  let items = await Menu.find({}).where('_id').in(ids).exec();
+  if (!items) return false;
+  items.forEach((item) => {
+    orders.forEach((order) => {
+      if (item._id == order.itemId) {
+        item.amount = amount(item._id);
+        item.totalPrice = amount(item._id) * item.price;
+      }
     });
-    return items;
-  })
+  });
+  return items;
 }
 
-const omitTransaction = async (req, res) => {
+const makeTransaction = async (req, res) => {
   if (!req.userId) return res.status(401).send({
-    message: 'Access token not provided!'
+    error: 'Access token not provided!'
   });
-  let total = getTotalBill(req.body.orders);
+  let total = await getTotalBill(req.body.orders);
   if (!total) return res.status(500).send({
-    message: 'An error has occured while omitting transaction.'
+    error: 'An error has occured while making transaction.'
   });
+  let orders = req.body.orders;
+  orders.forEach((order) => {
+    order.itemId = Types.ObjectId(order.itemId);
+  })
   let newTransaction = new Transaction({
-    orders: req.body.orders,
+    orders: orders,
     total: total
   });
   await newTransaction.save().then((response) => {
     res.status(200).send({
       _id: response._id,
-      message: 'Transaction successful!'
     });
   });
 }
@@ -68,7 +65,7 @@ const getTransactionDetail = (req, res) => {
     Transaction.findOne({_id: req.body._id}).then((transaction) => {
       let orders = getOrderItems(transaction.orders);
       if (!orders) return res.status(500).send({
-        message: 'An unexpected error has occured while fetching order items!'
+        error: 'An unexpected error has occured while fetching order items!'
       });
       res.status(200).send({
         date: transaction.date,
@@ -78,12 +75,12 @@ const getTransactionDetail = (req, res) => {
     });
   } catch (e) {
     return res.status(500).send({
-      message: 'An error has occured while fetching transaction detail.'
+      error: 'An error has occured while fetching transaction detail.'
     });
   }
 }
 
 module.exports = {
-  omitTransaction,
+  makeTransaction,
   getTransactionDetail,
 }
