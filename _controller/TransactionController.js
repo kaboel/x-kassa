@@ -65,7 +65,7 @@ const getTransactionDetail = (req, res) => {
     message: 'Access token not provided!'
   });
   try {
-    Transaction.findOne({_id: req.body._id}).then((transaction) => {
+    Transaction.findOne({_id: req.params.id}).then((transaction) => {
       let orders = getOrderItems(transaction.orders);
       if (!orders) return res.status(500).send({
         message: 'An unexpected error has occured while fetching order items!'
