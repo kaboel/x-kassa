@@ -2,22 +2,49 @@ const Transaction = require('../_model/Transaction');
 const Menu = require('../_model/Menu');
 const { Types } = require('mongoose');
 
-const countTotal = (orders) => {
+const getTotalBill = (orders) => {
   if (!Array.isArray(orders)) return false;
-  let ids = orders.map(order => {
-    return Types.ObjectId(order.itemId);
+  let ids = orders.map(item => {
+    return Types.ObjectId(item.itemId);
   });
-  Menu.find({ '_id': { $in: ids }}, (err, docs) => {
-    if (err || !docs) return false;
-    return docs.reduce((a, b) => a + b, 0);
+  let amount = (id) => {
+    let item = orders.find(item => item.itemId === id);
+    return item.amount;
+  }
+  Menu.find({ '_id': { $in: ids }}, (err, items) => {
+    if (err || !items) return false;
+    let total = 0;
+    items.forEach((item, index) => {
+      total += amount(item._id) * item.price;
+    });
+    return total;
   });
+}
+
+const getOrderItems = (orders) => {
+  if (!Array.isArray(orders)) return false;
+  let ids = orders.map(item => {
+    return Types.ObjectId(item.itemId);
+  });
+  let amount = (id) => {
+    let item = orders.find(item => item.itemId === id);
+    return item.amount;
+  }
+  Menu.find({'_id': {$in: ids}}, (err, items) => {
+    if (err || !items) return false;
+    items.forEach((item, index) => {
+      item.amount = amount(item._id);
+      item.totalPrice = amount(item._id) * item.price;
+    });
+    return items;
+  })
 }
 
 const omitTransaction = async (req, res) => {
   if (!req.userId) return res.status(401).send({
     message: 'Access token not provided!'
   });
-  let total = countTotal(req.body.orders);
+  let total = getTotalBill(req.body.orders);
   if (!total) return res.status(500).send({
     message: 'An error has occured while omitting transaction.'
   });
@@ -28,14 +55,35 @@ const omitTransaction = async (req, res) => {
   await newTransaction.save().then((response) => {
     res.status(200).send({
       _id: response._id,
-      date: response.date,
-      orders: response.order,
-      total: response.order,
       message: 'Transaction successful!'
     });
   });
 }
 
+const getTransactionDetail = (req, res) => {
+  if (!req.userId) return res.status(401).send({
+    message: 'Access token not provided!'
+  });
+  try {
+    Transaction.findOne({_id: req.body._id}).then((transaction) => {
+      let orders = getOrderItems(transaction.orders);
+      if (!orders) return res.status(500).send({
+        message: 'An unexpected error has occured while fetching order items!'
+      });
+      res.status(200).send({
+        date: transaction.date,
+        orders: orders,
+        total: transaction.total,
+      });
+    });
+  } catch (e) {
+    return res.status(500).send({
+      message: 'An error has occured while fetching transaction detail.'
+    });
+  }
+}
+
 module.exports = {
-  omitTransaction
+  omitTransaction,
+  getTransactionDetail,
 }
