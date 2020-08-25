@@ -1,11 +1,11 @@
 const Transaction = require('../_model/Transaction');
 const Menu = require('../_model/Menu');
-const mongoose = require('mongoose');
+const { Types } = require('mongoose');
 
 const countTotal = (orders) => {
   if (!Array.isArray(orders)) return false;
   let ids = orders.map(order => {
-    return mongoose.Types.ObjectId(order.itemId);
+    return Types.ObjectId(order.itemId);
   });
   Menu.find({ '_id': { $in: ids }}, (err, docs) => {
     if (err || !docs) return false;
