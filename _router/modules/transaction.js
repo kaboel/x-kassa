@@ -8,6 +8,6 @@ const {
 } = require('../../_controller/TransactionController');
 
 router.post('/make', tokenVerify, makeTransaction);
-router.get('/preview/', tokenVerify, getTransactionDetail);
+router.get('/preview/:id', tokenVerify, getTransactionDetail);
 
 module.exports = router;
