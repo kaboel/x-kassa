@@ -15,7 +15,7 @@ const tokenGenerate = (userId) => {
   return jwt.sign(
     { id: userId },
     secret,
-    { expiresIn: "1d" }
+    { expiresIn: 86400000 }
   );
 }
 
