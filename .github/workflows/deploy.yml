@@ -34,4 +34,6 @@ jobs:
             pm2 --version
             cd ~/Express/x-kassa
             npm install
+            pm2 stop X-KASSA
+            pm2 delete X-KASSA
             pm2 start app.js --name X-KASSA --watch
