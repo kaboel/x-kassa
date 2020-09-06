@@ -24,6 +24,11 @@ jobs:
           key: ${{ secrets.SSHKEY }}
           port: ${{ secrets.PORT }}
           script: |
+            curl -sL https://deb.nodesource.com/setup_12.x | bash
+            node --version
+            npm --version
+            npm i -g pm2
+            pm2 --version
             cd ~/Express/x-kassa
             npm install
             pm2 start app.js --watch
