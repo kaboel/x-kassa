@@ -1,8 +1,8 @@
-name: Deploy
+name: x-kassa
 on: [push]
 jobs:
   build:
-    name: build
+    name: deploy
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@master
