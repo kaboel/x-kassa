@@ -1,28 +1,30 @@
-name: deploy
+name: Deploy
 on: [push]
 jobs:
-  build:
+  x-kassa_deploy:
     runs-on: ubuntu-18.04
-    name: Build on Ubuntu-18.04 x64
+    name: Build on Ubuntu-18.04 aarch64
     steps:
-      - uses: actions/checkout@v1
-
-      - name: Copy repository contents via scp
-        uses: appleboy/scp-action@master
+      - uses: actions/checkout@v2.1.0
+      - uses: appleboy/scp-action@master
+        name: Copy repository contents via scp
         env:
-          HOST: ${{ secrets.HOST }}
-          USERNAME: ${{ secrets.USERNAME }}
-          PORT: ${{ secrets.PORT }}
-          KEY: ${{ secrets.SSHKEY }}
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          port: ${{ secrets.PORT }}
+          key: ${{ secrets.SSHKEY }}
         with:
           source: "."
           target: "~/Express/x-kassa"
 
-      - name: Executing remote command
+      - name: Execute remote commands
         uses: appleboy/ssh-action@master
         with:
-          USERNAME: ${{ secrets.USERNAME }}
-          HOST: ${{ secrets.HOST }}
-          PASSWORD: ${{ secrets.PASSWORD }}
-          PORT: ${{ secrets.PORT }}
-          script: cd ~/Express/x-kassa && npm install && pm2 start app.js --watch
+          username: ${{ secrets.USERNAME }}
+          host: ${{ secrets.HOST }}
+          key: ${{ secrets.SSHKEY }}
+          port: ${{ secrets.PORT }}
+          script: |
+            cd ~/Express/x-kassa
+            npm install
+            pm2 start app.js --watch
