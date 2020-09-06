@@ -25,4 +25,4 @@ jobs:
           HOST: ${{ secrets.HOST }}
           PASSWORD: ${{ secrets.PASSWORD }}
           PORT: ${{ secrets.PORT }}
-          script: cd ~/Express/x-kassa && pm2 start app.js --watch
+          script: cd ~/Express/x-kassa && npm install && pm2 start app.js --watch
