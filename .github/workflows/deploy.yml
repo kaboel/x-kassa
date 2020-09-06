@@ -24,11 +24,9 @@ jobs:
           key: ${{ secrets.SSHKEY }}
           port: ${{ secrets.PORT }}
           script: |
-            apt update
-            apt install curl
             curl -sL https://deb.nodesource.com/setup_12.x -o nodesource_setup.sh
             bash nodesource_setup.sh
-            apt install nodejs
+            apt install nodejs -y
             node --version
             npm --version
             npm i -g pm2
