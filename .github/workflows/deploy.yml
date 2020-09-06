@@ -1,19 +1,18 @@
 name: Deploy
 on: [push]
 jobs:
-  x-kassa_deploy:
-    runs-on: ubuntu-18.04
-    name: Build on Ubuntu-18.04 aarch64
+  build:
+    name: build
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2.1.0
-      - uses: appleboy/scp-action@master
-        name: Copy repository contents via scp
-        env:
+      - uses: actions/checkout@master
+      - name: Copy repository contents via scp
+        uses: appleboy/scp-action@master
+        with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           port: ${{ secrets.PORT }}
           key: ${{ secrets.SSHKEY }}
-        with:
           source: "."
           target: "~/Express/x-kassa"
 
