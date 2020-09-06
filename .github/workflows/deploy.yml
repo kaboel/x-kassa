@@ -26,7 +26,9 @@ jobs:
           script: |
             apt update
             apt install curl
-            curl -sL https://deb.nodesource.com/setup_12.x | bash
+            curl -sL https://deb.nodesource.com/setup_12.x -o nodesource_setup.sh
+            bash nodesource_setup.sh
+            apt install nodejs
             node --version
             npm --version
             npm i -g pm2
