@@ -29,6 +29,7 @@ jobs:
             apt install nodejs -y
             node --version
             npm --version
+            rm -rf nodesource_setup.sh
             npm i -g pm2
             pm2 --version
             cd ~/Express/x-kassa
