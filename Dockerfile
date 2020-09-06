@@ -15,4 +15,4 @@ RUN pm2
 COPY . .
 
 EXPOSE 8080
-CMD ["pm2", "app.js", "--watch"]
+CMD ["pm2", "start", "app.js", "--watch"]
