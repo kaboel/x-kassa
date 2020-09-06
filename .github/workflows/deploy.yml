@@ -36,4 +36,4 @@ jobs:
             npm install
             pm2 stop X-KASSA
             pm2 delete X-KASSA
-            pm2 start app.js --name X-KASSA --watch
+            PORT=8082 pm2 start app.js --name X-KASSA --watch
